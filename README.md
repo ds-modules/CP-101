@@ -11,7 +11,7 @@ This is the official repository of the City Planning (CP) 101 class at UC Berkel
 The assignments for each team member are listed below:
 
 | Lab Number      | Dev. Name       | Rough Draft Due  | Status                 |
-| :-------------: |Timlan Wong      |                  | Started lab 3          |
+| :-------------: |Timlan Wong      |                  | How to create twitter API account         |
 | 08              |  TBD            | TBD              | -                      |
 | 09              |  TBD            | TBD              | -                      |
 | 10              |  TBD            | TBD              | -                      |
