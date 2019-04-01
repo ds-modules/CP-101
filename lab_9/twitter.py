@@ -25,6 +25,34 @@ def load_keys(path):
         keys = json.load(f)
     return keys
 
+def validate_authentication(keys):
+    """Tests that keys work. 
+    
+    Args:
+        keys (dict): A Python dictionary with Twitter authentication
+          keys (strings), like this (but filled in):
+            {
+                "consumer_key": "<your Consumer Key here>",
+                "consumer_secret":  "<your Consumer Secret here>",
+                "access_token": "<your Access Token here>",
+                "access_token_secret": "<your Access Token Secret here>"
+            }
+    
+    Returns:
+        Nothing, prints out a message based on if the keys are valid or not.
+    """
+    import tweepy
+    from tweepy import TweepError
+    import logging
+    try:
+        auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
+        auth.set_access_token(keys["access_token"], keys["access_token_secret"])
+        api = tweepy.API(auth)
+        print("The keys are valid. Your username is:", api.auth.get_username())
+    except TweepError as e:
+        logging.warning("There was a Tweepy error. Double check your API keys and try again.")
+        logging.warning(e)
+    
 def download_recent_tweets_by_user(user_account_name, keys):
     """Downloads tweets by one Twitter user.
 
@@ -49,6 +77,39 @@ def download_recent_tweets_by_user(user_account_name, keys):
         api = tweepy.API(auth)
         tweets = [t._json for t in tweepy.Cursor(api.user_timeline, id=user_account_name, 
                                              tweet_mode='extended').items()]
+    except TweepError as e:
+        logging.warning("There was a Tweepy error. Double check your API keys and try again.")
+        logging.warning(e)
+    return tweets
+
+def download_recent_tweets_by_hashtag(hashtag, keys, count, since_date):
+    """Downloads tweets associated with a hashtag.
+
+    Args:
+        user_account_name (str): The value of the topic associated with the hashtag
+            formatted like so: "#programming", includes the hashtag
+        keys (dict): A Python dictionary with Twitter authentication
+          keys (strings), like this (but filled in):
+            {
+                "consumer_key": "<your Consumer Key here>",
+                "consumer_secret":  "<your Consumer Secret here>",
+                "access_token": "<your Access Token here>",
+                "access_token_secret": "<your Access Token Secret here>"
+            }
+        count (int): Max number of messages to return
+        since_date (string): Date to begin filtering tweets from, 
+            formatted like so: "2017-04-03"
+
+    Returns:
+        list: A list of Dictonary objects, each representing one tweet."""
+    import tweepy
+    try:
+        auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
+        auth.set_access_token(keys["access_token"], keys["access_token_secret"])
+        api = tweepy.API(auth)
+        tweets = [t._json for t in tweepy.Cursor(api.search,q=hashtag,count=count,
+                           lang="en",
+                           since=since_date).items():]
     except TweepError as e:
         logging.warning("There was a Tweepy error. Double check your API keys and try again.")
         logging.warning(e)
