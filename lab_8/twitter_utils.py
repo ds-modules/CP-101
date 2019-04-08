@@ -230,6 +230,7 @@ def compose_polarity(df, lex):
         df (DataFrame): a single-column collection of tweets indexed by tweet ID.
         lex (DataFrame): a sentiment lexicon containing one column "polarity". The row indices
             of this df must be words."""
+    df = df[['cleaned']]
     tidy_format = df.T.iloc[0].str.split(expand=True).stack().reset_index()
     tidy_format = tidy_format.set_index('id').rename(columns={'level_1': 'num', 0: 'word'})
     pol = tidy_format.merge(lex, how='left', left_on='word', right_index=True)
