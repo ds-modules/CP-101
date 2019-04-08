@@ -82,7 +82,7 @@ def download_recent_tweets_by_user(user_account_name, keys):
         logging.warning(e)
     return tweets
 
-def download_recent_tweets_by_hashtag(hashtag, keys):
+def download_recent_tweets_by_hashtag(hashtag, keys, location=None):
     """Downloads tweets associated with a hashtag.
 
     Args:
@@ -95,7 +95,8 @@ def download_recent_tweets_by_hashtag(hashtag, keys):
                 "access_token": "<your Access Token here>",
                 "access_token_secret": "<your Access Token Secret here>"
             }
-
+        location: The longitude, latitude, and radius we are centering our search around
+            "37.8716,-122.2727,1km"
     Returns:
         list: A list of Dictonary objects, each representing one tweet."""
     import tweepy
@@ -103,7 +104,8 @@ def download_recent_tweets_by_hashtag(hashtag, keys):
         auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
         auth.set_access_token(keys["access_token"], keys["access_token_secret"])
         api = tweepy.API(auth)
-        tweets = [t._json for t in tweepy.Cursor(api.search,q="#" + hashtag, count = 10,
+        tweets = [t._json for t in tweepy.Cursor(api.search,q="#" + hashtag, count = 5,
+                                                 location = location
                            lang="en").items()]
     except TweepError as e:
         logging.warning("There was a Tweepy error. Double check your API keys and try again.")
