@@ -210,7 +210,7 @@ def load_vader():
     sent['polarity'] = sent['polarity'].apply(float)
     return sent
 
-def clean_tweets(s)
+def clean_tweets(s):
     """Lowercase and remove punctuation from a pd.Series object containing text.
     
     Args:
