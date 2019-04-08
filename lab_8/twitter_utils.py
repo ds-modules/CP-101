@@ -205,11 +205,10 @@ def check_api_status(keys):
         auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
         auth.set_access_token(keys["access_token"], keys["access_token_secret"])
         api = tweepy.API(auth)
-        status = api.rate_limit_status
-        print(status['resources']['status']['/statuses/home_timeline'])
+        status = api.rate_limit_status()
+        print(status['resources']['statuses']['/statuses/home_timeline'])
         print(status['resources']['users']['/users/lookup'])
 
     except TweepError as e:
         logging.warning("There was a Tweepy error. Double check your API keys and try again.")
         logging.warning(e)
-    return tweets
