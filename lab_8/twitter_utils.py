@@ -203,6 +203,7 @@ def load_vader():
     """Returns a DataFrame of the VADER sentiment lexicon. Row indices correspond
     to the word or symbol. The polarity column gives the sentiment associated with
     a given word"""
+    import pandas as pd
     vader = open('vader_lexicon.txt').readlines()
     sent = pd.DataFrame(data=[x.replace('\n', '').split('\t') for x in vader],
                         columns=['sent', 'polarity', 'x', 'y']).drop(columns=['x', 'y'])
@@ -215,8 +216,8 @@ def clean_tweets(s):
     
     Args:
         data (pd.Series-like): a series containing text"""
+    import re
     result = s.apply(str.lower)
-    
     punct_re = r'[^a-zA-Z0-9\s]'
     result = [re.sub(pattern=punct_re, repl=' ', string=i) for i in result]
     return result
