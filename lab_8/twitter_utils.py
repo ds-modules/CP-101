@@ -105,8 +105,7 @@ def download_recent_tweets_by_hashtag(hashtag, keys, location=None):
         auth.set_access_token(keys["access_token"], keys["access_token_secret"])
         api = tweepy.API(auth)
         tweets = [t._json for t in tweepy.Cursor(api.search,q="#" + hashtag, count = 5,
-                                                 location = location
-                           lang="en").items()]
+                                                 location = location,lang="en").items()]
     except TweepError as e:
         logging.warning("There was a Tweepy error. Double check your API keys and try again.")
         logging.warning(e)
@@ -200,17 +199,37 @@ def get_hashtag_tweets_with_cache(hashtag, keys_path, count, filename):
         save_tweets(tweets, ds_tweets_save_path)
     return load_tweets(ds_tweets_save_path)
 
-def check_api_status(keys):
-    """Check your rate limit status"""
-    import tweepy
-    try:
-        auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
-        auth.set_access_token(keys["access_token"], keys["access_token_secret"])
-        api = tweepy.API(auth)
-        status = api.rate_limit_status()
-        print(status['resources']['statuses']['/statuses/home_timeline'])
-        print(status['resources']['users']['/users/lookup'])
+def load_vader():
+    """Returns a DataFrame of the VADER sentiment lexicon. Row indices correspond
+    to the word or symbol. The polarity column gives the sentiment associated with
+    a given word"""
+    vader = open('vader_lexicon.txt').readlines()
+    sent = pd.DataFrame(data=[x.replace('\n', '').split('\t') for x in vader],
+                        columns=['sent', 'polarity', 'x', 'y']).drop(columns=['x', 'y'])
+    sent.set_index('sent', inplace=True)
+    sent['polarity'] = sent['polarity'].apply(float)
+    return sent
 
-    except TweepError as e:
-        logging.warning("There was a Tweepy error. Double check your API keys and try again.")
-        logging.warning(e)
+def clean_tweets(s)
+    """Lowercase and remove punctuation from a pd.Series object containing text.
+    
+    Args:
+        data (pd.Series-like): a series containing text"""
+    result = s.apply(str.lower)
+    
+    punct_re = r'[^a-zA-Z0-9\s]'
+    result = [re.sub(pattern=punct_re, repl=' ', string=i) for i in result]
+    return result
+
+def compose_polarity(df, lex):
+    """Compose the polarity for each tweet by summing the polarity value from lex
+    for each word in df.
+    
+    Args:
+        df (DataFrame): a single-column collection of tweets indexed by tweet ID.
+        lex (DataFrame): a sentiment lexicon containing one column "polarity". The row indices
+            of this df must be words."""
+    tidy_format = df.T.iloc[0].str.split(expand=True).stack().reset_index()
+    tidy_format = tidy_format.set_index('id').rename(columns={'level_1': 'num', 0: 'word'})
+    pol = tidy_format.merge(lex, how='left', left_on='word', right_index=True)
+    return pol.groupby(pol.index).agg({'polarity': sum})
