@@ -86,8 +86,7 @@ def download_recent_tweets_by_hashtag(hashtag, keys):
     """Downloads tweets associated with a hashtag.
 
     Args:
-        user_account_name (str): The value of the topic associated with the hashtag
-            formatted like so: "#programming", includes the hashtag
+        user_account_name (str): The value of the topic associated with out the hashtag
         keys (dict): A Python dictionary with Twitter authentication
           keys (strings), like this (but filled in):
             {
@@ -96,9 +95,6 @@ def download_recent_tweets_by_hashtag(hashtag, keys):
                 "access_token": "<your Access Token here>",
                 "access_token_secret": "<your Access Token Secret here>"
             }
-        count (int): Max number of messages to return
-        since_date (string): Date to begin filtering tweets from, 
-            formatted like so: "2017-04-03"
 
     Returns:
         list: A list of Dictonary objects, each representing one tweet."""
@@ -107,7 +103,7 @@ def download_recent_tweets_by_hashtag(hashtag, keys):
         auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
         auth.set_access_token(keys["access_token"], keys["access_token_secret"])
         api = tweepy.API(auth)
-        tweets = [t._json for t in tweepy.Cursor(api.search,q="#" + hashtag,
+        tweets = [t._json for t in tweepy.Cursor(api.search,q="#" + hashtag, count = 10,
                            lang="en").items()]
     except TweepError as e:
         logging.warning("There was a Tweepy error. Double check your API keys and try again.")
