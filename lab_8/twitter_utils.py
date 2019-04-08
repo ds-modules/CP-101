@@ -197,3 +197,19 @@ def get_hashtag_tweets_with_cache(hashtag, keys_path, count, filename):
         tweets = download_recent_tweets_by_hashtag(hashtag, load_keys(keys_path), count)
         save_tweets(tweets, ds_tweets_save_path)
     return load_tweets(ds_tweets_save_path)
+
+def check_api_status(keys):
+    """Check your rate limit status"""
+    import tweepy
+    try:
+        auth = tweepy.OAuthHandler(keys["consumer_key"], keys["consumer_secret"])
+        auth.set_access_token(keys["access_token"], keys["access_token_secret"])
+        api = tweepy.API(auth)
+        status = api.rate_limit_status
+        print(status['resources']['status']['/statuses/home_timeline'])
+        print(status['resources']['users']['/users/lookup'])
+
+    except TweepError as e:
+        logging.warning("There was a Tweepy error. Double check your API keys and try again.")
+        logging.warning(e)
+    return tweets
